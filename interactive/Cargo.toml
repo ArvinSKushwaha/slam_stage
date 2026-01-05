@@ -1,0 +1,31 @@
+[package]
+name = "interactive"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sim = { workspace = true }
+glam = { workspace = true, features = ["rkyv", "zerocopy", "mint", "fast-math", "rand", "serde"] }
+image = { workspace = true }
+anyhow = { workspace = true }
+eframe = { workspace = true }
+egui = { workspace = true, features = ["rayon", "mint"] }
+egui_plot = { workspace = true }
+catppuccin-egui = { workspace = true, features = ["egui33"] }
+thiserror = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
+egui-file-dialog = { workspace = true }
+rayon = { workspace = true }
+mint = { workspace = true }
+micromap = { workspace = true }
+rustc-hash = { workspace = true }
+rand = { workspace = true }
+egui_nerdfonts = { workspace = true }
+serde = { workspace = true }
+serde_yml = { workspace = true }
+smol = "2.0.2"
+futures-timer = "3.0.3"
+
+[dev-dependencies]
+kdam = "0.6.3"

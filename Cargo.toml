@@ -1,0 +1,34 @@
+[workspace]
+resolver = "3"
+members = ["interactive", "sim"]
+
+[workspace.dependencies]
+anyhow = "1.0"
+catppuccin-egui = { version = "5.7.0", default-features = false }
+dashmap = "6.1.0"
+eframe = "0.33.3"
+egui = "0.33.3"
+egui-file-dialog = "0.12.0"
+egui_nerdfonts = { git = "https://github.com/houqp/egui_nerdfonts", rev = "6f540170520692ccf1a7d89aee94aea61c89da07" }
+egui_plot = "0.34.0"
+env_logger = "0.11.8"
+flume = "0.12.0"
+futures = "0.3.31"
+glam = "0.30.9"
+image = "0.25.9"
+itertools = "0.14.0"
+lazy_static = "1.5.0"
+log = "0.4.29"
+micromap = "0.1.0"
+mint = "0.5.9"
+oneshot = "0.1.11"
+puffin = "0.19.1"
+rand = "0.9.2"
+rayon = "1.11.0"
+rustc-hash = "2.1.1"
+serde = "1.0.228"
+serde_yml = "0.0.12"
+sim = { path = "sim" }
+smallvec = "1.15.1"
+thiserror = "2.0.17"
+zerocopy = "0.8.31"

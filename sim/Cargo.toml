@@ -1,0 +1,23 @@
+[package]
+name = "sim"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+glam = { workspace = true, features = ["fast-math", "rkyv", "zerocopy"] }
+image = { workspace = true }
+thiserror = { workspace = true }
+log = { workspace = true }
+zerocopy = { workspace = true }
+rayon = { workspace = true }
+itertools = { workspace = true }
+puffin = { workspace = true }
+flume = { workspace = true }
+micromap = { workspace = true }
+rustc-hash = { workspace = true }
+smallvec = { workspace = true }
+dashmap = { workspace = true }
+oneshot = { workspace = true }
+futures = { workspace = true, features = ["thread-pool"] }
+lazy_static = { workspace = true }
+parking_lot = { version = "0.12.5", features = ["arc_lock"] }

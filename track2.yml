@@ -1,0 +1,21 @@
+track: "./track2.png"
+threshold: 127
+agents:
+  - scale: 1.0
+    position:
+      x: 2.
+      y: -0.5
+    heading:
+      x: 1.
+      y: 0.
+    lidar:
+      count: 300
+  - scale: 0.5
+    position:
+      x: 5.
+      y: -0.5
+    heading:
+      x: 0.
+      y: 1.
+    lidar:
+      count: 80
