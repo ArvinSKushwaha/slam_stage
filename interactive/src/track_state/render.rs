@@ -78,7 +78,11 @@ impl PlotItem for TrackState {
                         center + (-front * half_extent.x - left * half_extent.y) * flip_y,
                     ],
                     Color32::DARK_BLUE,
-                    (0.0, Color32::TRANSPARENT),
+                    if self.track_render_state.active == Some(*id) {
+                        (1.0, Color32::from_white_alpha(80))
+                    } else {
+                        (0.0, Color32::TRANSPARENT)
+                    },
                 ));
             }
 
@@ -88,7 +92,8 @@ impl PlotItem for TrackState {
                     &self.scene.scene_loop.query(*id)
                 {
                     for &point in &lidar.state.0 {
-                        let agent_heading = transform.position_from_point(&vec2_to_plotpoint(point));
+                        let agent_heading =
+                            transform.position_from_point(&vec2_to_plotpoint(point));
                         shapes.push(Shape::circle_filled(
                             agent_heading,
                             4.0,

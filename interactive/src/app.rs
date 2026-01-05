@@ -1,4 +1,5 @@
 use std::collections::VecDeque;
+use std::path::PathBuf;
 
 use crate::track_file::{LidarFile, TrackFile};
 use crate::track_state::{TrackLoadError, TrackRenderState, TrackState};
@@ -7,7 +8,6 @@ use eframe::{CreationContext, egui};
 use egui_file_dialog::FileDialog;
 use sim::Agent2D;
 use sim::math::Box2D;
-use sim::scene::AgentId;
 
 pub struct App {
     durations: VecDeque<f32>,
@@ -17,7 +17,6 @@ pub struct App {
     lidar_count: usize,
     track_state: Option<TrackState>,
     last_time: std::time::Instant,
-    active: Option<AgentId>,
     paused: bool,
 }
 
@@ -31,24 +30,16 @@ impl App {
         cc.egui_ctx
             .style_mut(|s| s.drag_value_text_style = egui::TextStyle::Monospace);
 
-        let mut app = App {
+        let app = App {
             durations: VecDeque::new(),
-            track_file: "./track2.yml".to_string(),
+            track_file: String::new(),
             track_load_error: String::new(),
-            track_file_dialog: FileDialog::new()
-                .add_file_filter_extensions(
-                    "Pictures",
-                    vec!["png", "jpg", "jpeg", "bmp", "pnm", "qoi", "webp"],
-                )
-                .default_file_filter("Pictures"),
+            track_file_dialog: FileDialog::new(),
             lidar_count: 60,
             track_state: Default::default(),
             last_time: std::time::Instant::now(),
-            active: None,
             paused: false,
         };
-
-        app.load_track_state(TrackRenderState::default(), &cc.egui_ctx)?;
 
         Ok(app)
     }
@@ -63,6 +54,7 @@ impl App {
         ctx: &egui::Context,
     ) -> Result<(), TrackLoadError> {
         let path = &self.track_file;
+        log::debug!("Loading {path:?}");
         let file = std::fs::File::open(path)?;
 
         let track_file: TrackFile = serde_yml::from_reader(file)?;
@@ -86,15 +78,24 @@ impl App {
             })
             .collect::<Vec<_>>();
 
-        let track_state = TrackState::load(
-            &track_file.track,
+        let path = PathBuf::from(path).canonicalize()?;
+        let image_path = if let Some(parent) = path.parent() {
+            parent.join(&track_file.track)
+        } else {
+            PathBuf::from("/").join(&track_file.track)
+        };
+
+        let mut track_state = TrackState::load(
+            image_path,
             track_file.threshold,
             track_render_state,
             agents,
             ctx,
         )?;
 
-        self.active = track_state.scene.agents.keys().next().copied();
+        if track_state.track_render_state.active.is_none() {
+            track_state.track_render_state.active = track_state.scene.agents.keys().next().copied();
+        }
 
         self.track_state = Some(track_state);
         self.last_time = std::time::Instant::now();
@@ -133,9 +134,9 @@ impl eframe::App for App {
                         .hint_text(egui::WidgetText::from("File Path").italics())
                         .show(ui);
 
-                    // if ctx.cumulative_pass_nr() == 0 {
-                    //     file_edit.response.request_focus();
-                    // }
+                    if ctx.cumulative_pass_nr() == 0 {
+                        file_edit.response.request_focus();
+                    }
 
                     if file_edit.response.lost_focus()
                         && ui.input(|inp| inp.key_pressed(egui::Key::Enter))
@@ -152,7 +153,7 @@ impl eframe::App for App {
                 });
 
                 if let Some(track_state) = &mut self.track_state
-                    && let Some(agent) = &self.active
+                    && let Some(agent) = &track_state.track_render_state.active
                 {
                     ui.separator();
 
@@ -284,8 +285,8 @@ impl eframe::App for App {
                 let pos = resp.transform.value_from_position(pointer);
                 let pos = glam::vec2(pos.x as f32, pos.y as f32);
 
-                if let Some(track_state) = &self.track_state {
-                    self.active = None;
+                if let Some(track_state) = &mut self.track_state {
+                    track_state.track_render_state.active = None;
 
                     for (&id, agent) in &track_state.scene.agents {
                         let mut heading = agent.state.heading;
@@ -299,7 +300,7 @@ impl eframe::App for App {
                             max: agent_size / 2.,
                         };
                         if bbox.contains(body_view_pos) {
-                            self.active = Some(id);
+                            track_state.track_render_state.active = Some(id);
                             break;
                         }
                     }
@@ -318,7 +319,7 @@ impl eframe::App for App {
                 self.paused = !self.paused;
             }
 
-            if let Some(active) = &self.active {
+            if let Some(active) = &track_state.track_render_state.active {
                 let Agent2D { config, state, .. } =
                     track_state.scene.agents.get_mut(active).unwrap();
                 let config = &*config;

@@ -1,13 +1,15 @@
 use eframe::egui;
 use egui_plot::PlotItemBase;
 use rayon::prelude::*;
-use sim::{Agent2D, Scene2D};
+use sim::{Agent2D, Scene2D, scene::AgentId};
 use std::time::Instant;
 
 mod render;
 
 #[derive(Default, Debug, Copy, Clone)]
-pub struct TrackRenderState {}
+pub struct TrackRenderState {
+    pub active: Option<AgentId>,
+}
 
 #[derive(Clone)]
 pub struct TrackState {
@@ -84,11 +86,13 @@ impl TrackState {
 #[derive(Debug, thiserror::Error)]
 pub enum TrackLoadError {
     #[error("IOError: {0}")]
-    IOError(#[from] std::io::Error),
+    IO(#[from] std::io::Error),
+
     #[error("ImageError: {0}")]
-    ImageError(#[from] image::ImageError),
+    Image(#[from] image::ImageError),
+
     #[error("Deserialize: {0}")]
-    DeserializeError(#[from] serde_yml::Error),
+    Deserialize(#[from] serde_yml::Error),
 }
 
 impl TrackState {
