@@ -23,7 +23,7 @@ rustc-hash = { workspace = true }
 rand = { workspace = true }
 egui_nerdfonts = { workspace = true }
 serde = { workspace = true }
-serde_yml = { workspace = true }
+serde_norway = { workspace = true }
 smol = "2.0.2"
 futures-timer = "3.0.3"
 

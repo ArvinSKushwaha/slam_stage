@@ -57,7 +57,7 @@ impl App {
         log::debug!("Loading {path:?}");
         let file = std::fs::File::open(path)?;
 
-        let track_file: TrackFile = serde_yml::from_reader(file)?;
+        let track_file: TrackFile = serde_norway::from_reader(file)?;
 
         let agents = track_file
             .agents

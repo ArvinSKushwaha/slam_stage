@@ -27,7 +27,7 @@ rand = "0.9.2"
 rayon = "1.11.0"
 rustc-hash = "2.1.1"
 serde = "1.0.228"
-serde_yml = "0.0.12"
+serde_norway = "0.9.42"
 sim = { path = "sim" }
 smallvec = "1.15.1"
 thiserror = "2.0.17"

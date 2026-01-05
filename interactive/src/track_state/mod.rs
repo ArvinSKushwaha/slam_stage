@@ -92,7 +92,7 @@ pub enum TrackLoadError {
     Image(#[from] image::ImageError),
 
     #[error("Deserialize: {0}")]
-    Deserialize(#[from] serde_yml::Error),
+    Deserialize(#[from] serde_norway::Error),
 }
 
 impl TrackState {
