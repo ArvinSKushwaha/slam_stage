@@ -25,7 +25,7 @@ impl Scene2DLoop {
             self.workers.insert(
                 agent_id,
                 AgentWorker {
-                    lidar: LidarWorker {
+                    lidar: SensorWorker {
                         lidar: Arc::clone(&agent.sensors.lidar),
                         worker: RwLock::new(None),
                         last_measurement: RwLock::new(None),
@@ -58,7 +58,7 @@ impl Scene2DLoop {
 
 #[derive(Debug)]
 pub struct AgentWorker {
-    lidar: LidarWorker,
+    lidar: SensorWorker<Lidar2D>,
 }
 
 impl AgentWorker {
@@ -73,17 +73,17 @@ impl AgentWorker {
     }
 }
 
-type LidarReceiver = flume::Receiver<TimeStamped<<Lidar2D as Sensor2D>::SensorType>>;
+type Receiver<S> = flume::Receiver<TimeStamped<<S as Sensor2D>::SensorType>>;
 
 #[derive(Debug)]
-pub struct LidarWorker {
-    lidar: Arc<RwLock<Lidar2D>>,
-    worker: RwLock<Option<LidarReceiver>>,
-    last_measurement: RwLock<Option<TimeStamped<<Lidar2D as Sensor2D>::SensorType>>>,
+pub struct SensorWorker<S: Sensor2D> {
+    lidar: Arc<RwLock<S>>,
+    worker: RwLock<Option<Receiver<S>>>,
+    last_measurement: RwLock<Option<TimeStamped<S::SensorType>>>,
 }
 
-impl LidarWorker {
-    fn update_state(&self, config: Agent2DConfig, state: Agent2DState, scene_state: Scene2DState) {
+impl<S: Sensor2D + Send + Sync + 'static> SensorWorker<S> {
+    fn update_state(&self, config: Agent2DConfig, state: Agent2DState, scene_state: Scene2DState) where S::SensorType: Send + 'static {
         if let Some(rcv) = &*self.worker.read() {
             let rcvd = rcv.try_recv();
 
